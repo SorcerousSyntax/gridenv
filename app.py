@@ -30,9 +30,11 @@ async def root():
     return HTMLResponse(LANDING)
 
 @app.post("/reset")
-async def reset(req: CreateReq):
+async def reset(req: Optional[CreateReq] = None):
     try:
-        env = GridWorldEnv(task_id=req.task_id, seed=req.seed)
+        task_id = req.task_id if req else "reach_goal"
+        seed = req.seed if req else None
+        env = GridWorldEnv(task_id=task_id, seed=seed)
         obs = env.reset()
         sid = str(uuid.uuid4())
         _sessions[sid] = env
