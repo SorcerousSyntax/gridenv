@@ -145,6 +145,7 @@ LANDING = """<!DOCTYPE html>
     <div class="task hard"><span class="badge">HARD</span><h3>Survive & Escape</h3><p>9×9 grid. Enemies + traps + coins + escape.</p></div>
   </div>
 
+
   <h2>API</h2>
   <div class="endpoints">
     <div class="ep-row"><span class="method">POST</span> /reset — start new episode</div>
