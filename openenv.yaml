@@ -1,0 +1,71 @@
+name: gridworld-survival
+version: "1.0.0"
+description: >
+  GridWorld Survival is a procedurally generated 2D grid mini-game where an
+  AI agent must navigate hazards, collect resources, and reach the exit.
+  Three tasks of increasing difficulty test navigation, planning, and survival.
+author: gridenv-team
+tags:
+  - mini-game
+  - gridworld
+  - rl
+  - navigation
+  - survival
+
+tasks:
+  - id: reach_goal
+    name: Reach the Goal (Easy)
+    difficulty: easy
+    max_steps: 30
+    description: >
+      Navigate a 5x5 grid from start to the exit (G).
+      No hazards, no enemies. Just find the shortest path.
+
+  - id: collect_and_escape
+    name: Collect and Escape (Medium)
+    difficulty: medium
+    max_steps: 50
+    description: >
+      Navigate a 7x7 grid. Collect at least 3 coins before reaching the exit.
+      Walls block movement. Score depends on coins collected and steps taken.
+
+  - id: survive_and_escape
+    name: Survive and Escape (Hard)
+    difficulty: hard
+    max_steps: 80
+    description: >
+      Navigate a 9x9 grid with walls, traps, and moving enemies.
+      Collect coins, avoid hazards, survive long enough to escape.
+      Partial credit for coins collected even if agent dies.
+
+observation_space:
+  type: object
+  properties:
+    grid:
+      type: array
+      description: 2D list of cell values (agent, empty, wall, coin, trap, enemy, goal)
+    agent_pos:
+      type: array
+      items: { type: integer }
+    goal_pos:
+      type: array
+      items: { type: integer }
+    coins_collected:
+      type: integer
+    coins_total:
+      type: integer
+    health:
+      type: integer
+    current_step:
+      type: integer
+    max_steps:
+      type: integer
+    done:
+      type: boolean
+    task_id:
+      type: string
+
+action_space:
+  type: string
+  enum: [UP, DOWN, LEFT, RIGHT, STAY]
+  description: Move the agent in the given direction or stay in place.
