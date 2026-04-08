@@ -25,8 +25,6 @@ import sys
 import time
 from typing import Any, Dict, List
 
-from openai import OpenAI
-
 sys.path.insert(0, os.path.dirname(__file__))
 from gridenv import GridWorldEnv
 
@@ -91,6 +89,10 @@ class LLMAgent:
     def __init__(self):
         if not HF_TOKEN:
             raise EnvironmentError("HF_TOKEN not set.")
+        try:
+            from openai import OpenAI
+        except Exception as e:
+            raise EnvironmentError(f"openai dependency unavailable: {e}")
         self.client = OpenAI(
             base_url=API_BASE_URL,
             api_key=HF_TOKEN
@@ -230,13 +232,19 @@ def run_episode(task_id: str, agent, seed: int) -> Dict[str, Any]:
 # ── Main ───────────────────────────────────────────────────────────────────
 
 def main():
+    # Keep stdout line-buffered in containerized/non-interactive runners.
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except Exception:
+        pass
+
     parser = argparse.ArgumentParser(description="GridWorld Baseline Inference")
     parser.add_argument("--rule-based", action="store_true",
                         help="Use rule-based agent (no API key needed)")
     parser.add_argument("--seed",  type=int, default=SEED)
     parser.add_argument("--tasks", nargs="+",
                         default=["reach_goal", "collect_and_escape", "survive_and_escape"])
-    args = parser.parse_args()
+    args, _unknown = parser.parse_known_args()
 
     tasks   = args.tasks
     results = []
