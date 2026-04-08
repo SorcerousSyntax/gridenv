@@ -187,6 +187,8 @@ def run_episode(task_id: str, agent, seed: int) -> Dict[str, Any]:
     env  = GridWorldEnv(task_id=task_id, seed=seed)
     obs  = env.reset()
 
+    # Structured logs required by the validator.
+    print(f"[START] task={task_id}", flush=True)
     print(f"\n  Map preview:\n{obs.grid_text}")
 
     final_score = 0.0
@@ -201,6 +203,11 @@ def run_episode(task_id: str, agent, seed: int) -> Dict[str, Any]:
         steps_used = info["step"]
         final_score = reward.score
 
+        print(
+            f"[STEP] step={steps_used} reward={reward.delta:.4f}",
+            flush=True,
+        )
+
         status = f"[{action:5s}] score={reward.score:.4f} Δ={reward.delta:+.4f}"
         if info.get("won"):
             status += " ✓ WON"
@@ -208,6 +215,10 @@ def run_episode(task_id: str, agent, seed: int) -> Dict[str, Any]:
 
         if done:
             print(f"  → Terminal: {reward.feedback}")
+            print(
+                f"[END] task={task_id} score={final_score:.4f} steps={steps_used}",
+                flush=True,
+            )
 
     return {
         "task_id":     task_id,
