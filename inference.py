@@ -186,9 +186,6 @@ class RuleBasedAgent:
 def run_episode(task_id: str, agent, seed: int) -> Dict[str, Any]:
     env  = GridWorldEnv(task_id=task_id, seed=seed)
     obs  = env.reset()
-
-    # Structured logs required by the validator.
-    print(f"[START] task={task_id}", flush=True)
     print(f"\n  Map preview:\n{obs.grid_text}")
 
     final_score = 0.0
@@ -256,6 +253,9 @@ def main():
         print(f"Task: {task_id}  [{diff.get(task_id,'?')}]")
         print(f"{'─'*60}")
 
+        # Emit START before any setup so validators always see structured output.
+        print(f"[START] task={task_id}", flush=True)
+
         if args.rule_based:
             agent = RuleBasedAgent()
         else:
@@ -265,8 +265,22 @@ def main():
                 print(f"  ⚠ LLM unavailable ({e}), using rule-based fallback.")
                 agent = RuleBasedAgent()
 
-        result = run_episode(task_id, agent, seed=args.seed)
-        results.append(result)
+        try:
+            result = run_episode(task_id, agent, seed=args.seed)
+            results.append(result)
+        except Exception as e:
+            # Fallback structured output so parser still receives STEP/END blocks.
+            print(f"[STEP] step=0 reward=0.0000", flush=True)
+            print(f"[END] task={task_id} score=0.0000 steps=0", flush=True)
+            print(f"  ⚠ Task failed: {e}")
+            results.append({
+                "task_id": task_id,
+                "final_score": 0.0,
+                "steps_used": 0,
+                "won": False,
+                "coins": 0,
+                "seed": args.seed,
+            })
         time.sleep(0.3)
 
     # ── Summary ────────────────────────────────────────────────────────────
