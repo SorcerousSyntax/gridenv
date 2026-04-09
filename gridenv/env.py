@@ -60,6 +60,8 @@ MOVE_DELTAS = {
     "STAY":  ( 0,  0),
 }
 
+EPSILON = 1e-4
+
 
 class GridWorldEnv:
     """
@@ -241,6 +243,11 @@ class GridWorldEnv:
 
     # ── Reward ─────────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _strict_score(value: float) -> float:
+        """Clamp to the open interval (0, 1) and keep 4-decimal precision."""
+        return round(min(1.0 - EPSILON, max(EPSILON, float(value))), 4)
+
     def _compute_reward(self, feedback_parts: List[str]) -> Reward:
         s = self._state
 
@@ -285,7 +292,7 @@ class GridWorldEnv:
             feedback    = " | ".join(feedback_parts) if feedback_parts else "Moving..."
             is_terminal = False
 
-        final = round(min(1.0, max(0.0, base - loop_penalty)), 4)
+        final = self._strict_score(base - loop_penalty)
         delta = round(final - self._prev_score, 4)
         self._prev_score = final
 

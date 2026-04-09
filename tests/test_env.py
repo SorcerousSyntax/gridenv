@@ -23,7 +23,7 @@ def test_step_increments(task_id):
     env.reset()
     _, reward, done, info = env.step("RIGHT")
     assert info["step"] == 1
-    assert 0.0 <= reward.score <= 1.0
+    assert 0.0 < reward.score < 1.0
 
 
 @pytest.mark.parametrize("task_id", ["reach_goal", "collect_and_escape", "survive_and_escape"])
@@ -44,7 +44,7 @@ def test_invalid_action_defaults_to_stay():
     env = GridWorldEnv("reach_goal", seed=1)
     env.reset()
     _, reward, _, _ = env.step("JUMP")
-    assert 0.0 <= reward.score <= 1.0
+    assert 0.0 < reward.score < 1.0
 
 
 def test_state_returns_grid():
@@ -60,7 +60,7 @@ def test_reward_in_bounds():
     env.reset()
     for action in ["RIGHT","DOWN","RIGHT","DOWN","LEFT","UP"]:
         _, reward, done, _ = env.step(action)
-        assert 0.0 <= reward.score <= 1.0
+        assert 0.0 < reward.score < 1.0
         if done:
             break
 

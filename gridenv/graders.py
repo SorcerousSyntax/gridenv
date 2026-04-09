@@ -1,9 +1,17 @@
 """
 GridWorld Graders — deterministic scoring for all 3 tasks.
-All scores returned in [0.0, 1.0] with partial credit.
+All scores returned in (0.0, 1.0) with partial credit.
 """
 from __future__ import annotations
 from typing import Any, Dict
+
+
+EPSILON = 1e-4
+
+
+def _strict_score(value: float) -> float:
+    """Clamp to the open interval (0, 1) and keep 4-decimal precision."""
+    return round(min(1.0 - EPSILON, max(EPSILON, float(value))), 4)
 
 
 # ── EASY: Reach the Goal ───────────────────────────────────────────────────
@@ -49,7 +57,7 @@ class ReachGoalGrader:
             efficiency = 0.0
 
         final = 0.70 * goal_score + 0.20 * proximity + 0.10 * efficiency
-        final = round(min(1.0, max(0.0, final)), 4)
+        final = _strict_score(final)
 
         return {
             "score": final,
@@ -101,7 +109,7 @@ class CollectAndEscapeGrader:
         if coins_collected == self.coins_total and won:
             final = min(1.0, final + 0.10)
 
-        final = round(min(1.0, max(0.0, final)), 4)
+        final = _strict_score(final)
 
         return {
             "score": final,
@@ -159,7 +167,7 @@ class SurviveAndEscapeGrader:
             0.10 * survival_score +
             0.10 * efficiency
         )
-        final = round(min(1.0, max(0.0, final)), 4)
+        final = _strict_score(final)
 
         if won:
             feedback = f"Survived and escaped! Health: {health}/3, Coins: {coins_collected}/{self.coins_total}"
